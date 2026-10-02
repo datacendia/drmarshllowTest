@@ -1,0 +1,142 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Day palette: RGB channels, consumed by the tokens in tailwind.config.ts. */
+  :root {
+    color-scheme: light;
+    --ink: 30 43 74;
+    --inverse: 255 255 255;
+    --navy: 30 43 74;
+    --bone: 251 248 243;
+    --card: 255 255 255;
+    --sky: 207 229 244;
+    --skydeep: 143 186 223;
+    --blue: 79 134 184;
+    --denim: 70 103 155;
+    --coral: 242 139 130;
+    --muted: 105 113 138;
+    --line: 233 226 214;
+    --scrim: 30 43 74;
+    --tile-blush: 249 212 209;
+    --tile-powder: 207 230 245;
+    --tile-mint: 205 235 223;
+    --tile-lilac: 225 217 243;
+    --tile-night: 43 61 107;
+  }
+
+  /* Night Shift Mode: the ward at 3 a.m. Same layout, lights down. */
+  [data-shift="night"] {
+    color-scheme: dark;
+    --ink: 236 241 251;
+    --inverse: 18 28 54;
+    --bone: 13 22 44;
+    --card: 24 36 66;
+    --sky: 21 33 62;
+    --skydeep: 44 72 118;
+    --blue: 141 184 230;
+    --denim: 31 50 86;
+    --muted: 154 166 196;
+    --line: 40 54 88;
+    --scrim: 2 5 14;
+    --tile-blush: 66 42 66;
+    --tile-powder: 30 52 88;
+    --tile-mint: 26 58 60;
+    --tile-lilac: 46 41 82;
+    --tile-night: 36 52 92;
+  }
+
+  html {
+    background-color: rgb(var(--bone));
+    color: rgb(var(--ink));
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply font-sans antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-display font-normal;
+  }
+  :focus-visible {
+    outline: 2px solid rgb(var(--ink));
+    outline-offset: 3px;
+  }
+
+  /* When the shift changes on an open page, the lights fade rather than snap. */
+  body,
+  header,
+  main section,
+  footer,
+  aside,
+  .fabric-scrubs,
+  .fabric-denim {
+    transition:
+      background-color 700ms ease,
+      color 700ms ease,
+      border-color 700ms ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .container-wide {
+    @apply mx-auto px-5 sm:px-8;
+    max-width: theme("maxWidth.wide");
+  }
+  .caption {
+    @apply text-xs font-extrabold uppercase tracking-[0.22em];
+    color: rgb(var(--muted));
+  }
+  /* Navy on coral keeps WCAG AA contrast, by day and by night. */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-brand-coral px-7 py-3.5 text-[0.8rem] font-extrabold uppercase tracking-[0.14em] text-brand-navy shadow-card transition duration-200 hover:-translate-y-0.5 hover:shadow-lg;
+  }
+  .btn-outline {
+    @apply inline-flex items-center justify-center rounded-full border-[1.5px] border-brand-ink px-6 py-2.5 text-[0.7rem] font-extrabold uppercase tracking-[0.16em] text-brand-ink transition duration-200 hover:bg-brand-ink hover:text-brand-inverse;
+  }
+
+  /* Scrubs and denim fabric in pure CSS, so they dim with the palette. */
+  .fabric-scrubs {
+    background-color: rgb(var(--skydeep));
+    background-image:
+      radial-gradient(120% 90% at 78% 12%, rgb(255 255 255 / 0.3), transparent 55%),
+      radial-gradient(90% 70% at 8% 100%, rgb(30 43 74 / 0.2), transparent 60%),
+      repeating-linear-gradient(45deg, rgb(255 255 255 / 0.07) 0 2px, transparent 2px 5px),
+      repeating-linear-gradient(-45deg, rgb(30 43 74 / 0.07) 0 2px, transparent 2px 5px);
+  }
+  .fabric-denim {
+    background-color: rgb(var(--denim));
+    background-image:
+      radial-gradient(100% 80% at 30% 18%, rgb(255 255 255 / 0.2), transparent 60%),
+      repeating-linear-gradient(60deg, rgb(255 255 255 / 0.06) 0 1px, transparent 1px 4px),
+      repeating-linear-gradient(-30deg, rgb(0 0 0 / 0.08) 0 1px, transparent 1px 3px);
+  }
+  [data-shift="night"] .hero-glow {
+    opacity: 0.18;
+  }
+}
+
+/*
+ * Shift-dependent content. Both versions are always in the HTML; CSS shows
+ * one. The server can't know the visitor's clock, so rendering "day" or
+ * "night" in React would mismatch on hydration. Only the hidden side gets a
+ * rule, so the visible side keeps whatever display its utilities give it.
+ */
+:root:not([data-shift="night"]) .shift-night,
+[data-shift="night"] .shift-day {
+  display: none !important;
+}
